@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: labeled-app
+  labels:
+    app: labeled-app
+spec:
+  selector:
+    matchLabels:
+      app: labeled-app
+  template:
+    metadata:
+      labels:
+        app: labeled-app
+    spec:
+      containers:
+        - name: labeled-app
+          image: nginx
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unlabeled-app
+spec:
+  selector:
+    matchLabels:
+      run: unlabeled-app
+  template:
+    metadata:
+      labels:
+        run: unlabeled-app
+    spec:
+      containers:
+        - name: unlabeled-app
+          image: nginx
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: my-secret
+spec:
+  refreshInterval: 5m
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: my-store

@@ -1520,6 +1520,34 @@ func Test_Apply_ValidatingPoliciesWithMultipleCRDS(t *testing.T) {
 	}
 }
 
+func Test_Apply_ValidatingPolicy_SkipsUnknownCRs(t *testing.T) {
+	testcases := []*TestCase{
+		{
+			config: ApplyCommandConfig{
+				PolicyPaths:   []string{"../../_testdata/apply/test-5/policy/policy.yml"},
+				ResourcePaths: []string{"../../_testdata/apply/test-5/resources/resources.yml"},
+				PolicyReport:  true,
+				// No CrdPath: unknown CRs (ExternalSecret) must be silently skipped.
+			},
+			expectedReports: []openreportsv1alpha1.Report{{
+				Summary: openreportsv1alpha1.ReportSummary{
+					Pass:  1,
+					Fail:  1,
+					Skip:  0,
+					Error: 0,
+					Warn:  0,
+				},
+			}},
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run("", func(t *testing.T) {
+			verifyTestcase(t, tc, compareSummary)
+		})
+	}
+}
+
 func TestCommandCRDKubeEnable(t *testing.T) {
 	cmd := Command()
 	assert.NotNil(t, cmd)
